@@ -1,5 +1,6 @@
 package dev.lpa;
 
+
 public class Main {
 
     public static void main(String[] args) {
@@ -47,11 +48,12 @@ public class Main {
                 try {
                     Thread.sleep(1000);
 
-                    if (System.currentTimeMillis() - now > 8000) {
+                    if (System.currentTimeMillis() - now > 3000) {
                         thread.interrupt();
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    return;
                 }
             }
         });
