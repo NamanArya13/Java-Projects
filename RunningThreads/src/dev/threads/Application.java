@@ -26,5 +26,16 @@ public class Application {
         thread3.join();
         thread4.join();
         System.out.println("Shared Counter = "+counter);
+
+        ThreadClass thread5 = new ThreadClass();
+        thread5.start();
+
+        Thread thread6 = new Thread(()->{
+            for(int i = 0;i<1000;i++){
+                System.out.println(i);
+            }
+        });
+
+        thread6.start();
     }
 }

@@ -34,6 +34,7 @@ public class Thread2Main {
         Thread myThread = new Thread(myRunnable);
         myThread.start();
 
+
         for (int i = 1; i <= 3; i++) {
             System.out.print(" 0 ");
             try {
