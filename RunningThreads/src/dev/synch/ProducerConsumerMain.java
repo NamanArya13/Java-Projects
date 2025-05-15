@@ -28,12 +28,10 @@ class BlockingQueue{
                         throw new RuntimeException(e);
                     }
                 }
-                while (arrayList.size()<size){
-                    System.out.println(" Producing Data - "+data);
-                    arrayList.add("Data - "+data++);
-                }
+                System.out.println(" Producing Data - "+data);
+                arrayList.add("Data - "+data++);
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -52,12 +50,10 @@ class BlockingQueue{
                         throw new RuntimeException(e);
                     }
                 }
-                while (!arrayList.isEmpty()){
-                    System.out.println("Consuming Data - "+arrayList.get(arrayList.size()-1));
-                    arrayList.remove(arrayList.size()-1);
-                }
+                System.out.println("Consuming Data - "+arrayList.get(arrayList.size()-1));
+                arrayList.remove(arrayList.size()-1);
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
