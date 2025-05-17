@@ -11,13 +11,13 @@ public class TryLockMain {
 
     public static void main(String[] args) throws InterruptedException {
 
-        Runnable task = ()->{
+        Runnable task1 = ()->{
             boolean res1 = lock1.tryLock();
             try{
                 if(res1){
                     System.out.println("Lock acquired "+lock1.getHoldCount());
-                    System.out.println(Thread.currentThread().getName()+" acquired first locks");
-                    boolean res2 = lock2.tryLock(1000, TimeUnit.MILLISECONDS);
+                    System.out.println(Thread.currentThread().getName()+" acquired first lock");
+                    boolean res2 = lock2.tryLock(5000, TimeUnit.MILLISECONDS);
                     try{
                         if(res2) System.out.println(Thread.currentThread().getName()+" acquired both locks");
                         Thread.sleep(500);
@@ -31,8 +31,30 @@ public class TryLockMain {
                if (res1) lock1.unlock();
             }
         };
-        Thread t1 = new Thread(task);
-        Thread t2 = new Thread(task);
+
+        Runnable task2 = ()->{
+            boolean res1 = lock2.tryLock();
+            try{
+                if(res1){
+                    System.out.println("Lock acquired "+lock2.getHoldCount());
+                    System.out.println(Thread.currentThread().getName()+" acquired second lock");
+                    boolean res2 = lock1.tryLock(3000, TimeUnit.MILLISECONDS);
+                    try{
+                        if(res2) System.out.println(Thread.currentThread().getName()+" acquired both locks");
+                        Thread.sleep(500);
+                    }finally {
+                        if (res2) lock1.unlock();
+                    }
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } finally {
+                if (res1) lock2.unlock();
+            }
+        };
+
+        Thread t1 = new Thread(task1);
+        Thread t2 = new Thread(task2);
 
         t1.start();
         t2.start();
