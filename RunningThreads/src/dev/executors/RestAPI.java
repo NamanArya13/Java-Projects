@@ -65,5 +65,13 @@ public class RestAPI {
         });
 
         System.out.println("Got the result for 5th call");
+        Future<String> future = executorService.submit(task);
+        try{
+            future.get(20,TimeUnit.SECONDS);
+        } catch (ExecutionException | InterruptedException e) {
+            System.out.println("Interrupted exception");
+        } catch (TimeoutException e) {
+            System.out.println("Request Timed out");
+        }
     }
 }
