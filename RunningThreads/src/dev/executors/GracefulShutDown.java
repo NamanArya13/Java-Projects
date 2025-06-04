@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class GracefulShutDown {
@@ -58,6 +59,14 @@ public class GracefulShutDown {
         }
 
         executorService.shutdown();
+        try {
+            Thread.sleep(1000);
+            executorService.execute(task);
+        }catch (RejectedExecutionException e){
+            System.out.println("Cannot accept tasks after shutdown");
+        }catch (InterruptedException e){
+            throw new RuntimeException(e);
+        }
         List<Runnable> pendingTasks = new ArrayList<>();
         try{
             if (!executorService.awaitTermination(5, TimeUnit.SECONDS))
