@@ -48,6 +48,27 @@ public class RestAPI {
             return response;
         };
 
+        List<Callable<String>> tasks = new ArrayList<>();
+        tasks.add(task);
+        tasks.add(task);
+        tasks.add(task);
+
+        ExecutorService executorService1 = Executors.newFixedThreadPool(2);
+        List<Future<String>> futures;
+        try {
+            futures = executorService1.invokeAll(tasks);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        for(Future<String> stringFuture: futures){
+            try {
+                System.out.println(stringFuture.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         ExecutorService executorService = Executors.newCachedThreadPool();
 
         List<Future<String>> futureList = new ArrayList<>();
