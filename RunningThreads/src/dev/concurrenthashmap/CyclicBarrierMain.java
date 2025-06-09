@@ -2,46 +2,49 @@ package dev.concurrenthashmap;
 
 import java.util.Random;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CyclicBarrierMain {
     public static void main(String[] args) {
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+
         Random random = new Random();
 
-        for (int i = 0; i < 3; i++) {
-            int round = i + 1;
+        CountDownLatch countDownLatch = new CountDownLatch(4);
 
-            // Barrier action: will be executed once all 10 players reach the barrier
-            Runnable barrierAction = () -> System.out.println("Game starts Now - Round " + round);
+        AtomicInteger atomicInteger = new AtomicInteger(0);
 
-            CyclicBarrier barrier = new CyclicBarrier(10, barrierAction);
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(4,()->
+                System.out.println("Game starting Now"));
 
-            // Submit 10 players
-            for (int j = 0; j < 10; j++) {
-                executorService.submit(() -> {
-                    int playerNumber = random.nextInt(1, 100);
-                    System.out.println("Player " + playerNumber + " getting ready");
-
-                    try {
-                        Thread.sleep(random.nextInt(1000, 3000));
-                        System.out.println("Player " + playerNumber + " is ready");
-                        barrier.await(); // Wait for all 10 players
-                    } catch (InterruptedException | BrokenBarrierException e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
-
-            // Wait before submitting next round (long enough for this round to finish)
+        Runnable task = ()->{
+            int playerValue = atomicInteger.addAndGet(1);
+            System.out.println("Player "+playerValue+" getting ready");
             try {
-                Thread.sleep(4000); // You can increase this if needed
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.sleep(random.nextInt(1000,10000));
+                System.out.println("Player "+playerValue+" is ready");
+                cyclicBarrier.await(5,TimeUnit.SECONDS);
+                countDownLatch.countDown();
+            } catch (InterruptedException | BrokenBarrierException e) {
+                throw new RuntimeException(e);
+            } catch (TimeoutException e) {
+                System.out.println("Player timed out");
+                throw new RuntimeException(e);
             }
+        };
 
-            System.out.println("Round " + round + " submitted\n");
+        for(int i = 0;i<4;i++){
+            executorService.submit(task);
+        }
+        try {
+            countDownLatch.await();
+            System.out.println("Game ended");
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         executorService.shutdown();
+
     }
 }
