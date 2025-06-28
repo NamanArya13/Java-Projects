@@ -12,6 +12,7 @@ class BoundedBuffer<T>{
     private int index;
 
     public BoundedBuffer(int capacity){
+        if (capacity<=0) throw new IllegalArgumentException("Capacity must be >0");
         this.capacity = capacity;
         buffer = (T[]) new Object[capacity];
         index = 0;
@@ -105,6 +106,9 @@ public class BoundedBufferMain {
             Thread.sleep(500);
             Future<String> future = consumer.submit(consumerTask);
         }
+
+        producer.shutdown();
+        consumer.shutdown();
 
 
 
