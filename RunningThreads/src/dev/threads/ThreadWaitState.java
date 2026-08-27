@@ -12,22 +12,26 @@ class Thread1 implements Runnable {
 
     @Override
     public void run() {
-        synchronized (sharedList) {
-            int i = 0;
-            while (sharedList.size() < 5) {
-                sharedList.add(i++);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+        while (true) {
+            synchronized (sharedList) {
+                while (sharedList.size() >= 5) {
+                    try {
+                        sharedList.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-                System.out.println("Thread1 added: " + (i - 1));
-            }
-            sharedList.notify(); // Notify Thread2 that list is full
-            try {
-                sharedList.wait(); // Wait until Thread2 clears the list
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                int i = 0;
+                while (sharedList.size() < 5) {
+                    sharedList.add(i++);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    System.out.println("Thread1 added: " + (i - 1));
+                }
+                sharedList.notify();
             }
         }
     }
@@ -42,17 +46,19 @@ class Thread2 implements Runnable {
 
     @Override
     public void run() {
-        synchronized (sharedList) {
-            try {
-                while (sharedList.size() < 5) {
-                    sharedList.wait(); // Wait until Thread1 fills the list
+        while (true) {
+            synchronized (sharedList) {
+                try {
+                    while (sharedList.size() < 5) {
+                        sharedList.wait(); // Wait until Thread1 fills the list
+                    }
+                    Thread.sleep(5000);
+                    sharedList.clear();
+                    System.out.println("Thread2 cleared the list");
+                    sharedList.notify(); // Notify Thread1 that list has been cleared
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                Thread.sleep(5000);
-                sharedList.clear();
-                System.out.println("Thread2 cleared the list");
-                sharedList.notify(); // Notify Thread1 that list has been cleared
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }

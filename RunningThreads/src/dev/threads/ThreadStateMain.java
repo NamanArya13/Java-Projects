@@ -9,5 +9,7 @@ public class ThreadStateMain {
         thread.start();
         Thread.sleep(1000);
         System.out.println("Thread state - "+thread.getState());
+        Thread.sleep(5000);
+        System.out.println("Thread state - "+thread.getState());
     }
 }
